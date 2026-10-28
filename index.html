@@ -10,26 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Kanit', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .line-green {
-            background-color: #06C755;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="text-slate-800">
 
@@ -64,4 +46,205 @@
 
         <!-- Stat Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase">นักศึกษาทั้งหมด</p>
+                    <p class="text-3xl font-bold text-slate-800 mt-1" id="stat-total">40</p>
+                    <span class="text-xs text-slate-500">คน (DBI223 & DBI224)</span>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase">ส่งงานแล้ว</p>
+                    <p class="text-3xl font-bold text-emerald-600 mt-1" id="stat-submitted">30</p>
+                    <span class="text-xs text-emerald-600 font-medium" id="stat-submitted-pct">75% ของทั้งหมด</span>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase">ยังไม่ส่งงาน</p>
+                    <p class="text-3xl font-bold text-rose-600 mt-1" id="stat-pending">10</p>
+                    <span class="text-xs text-rose-600 font-medium" id="stat-pending-pct">25% ต้องติดตามซ้ำ</span>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase">ส่ง LINE แจ้งเตือนแล้ว</p>
+                    <p class="text-3xl font-bold text-indigo-600 mt-1" id="stat-alerts">14</p>
+                    <span class="text-xs text-indigo-600 font-medium">ครั้ง (ผ่าน Automation)</span>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Simulator & LINE Live Feed -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left: Simulator Controls -->
+            <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-sliders text-emerald-500 mr-2"></i>จำลองการทำงานระบบ Automation</h2>
+                        <p class="text-xs text-slate-500">ทดสอบส่งข้อมูล Google Form และส่งข้อความแจ้งเตือนลงกลุ่ม LINE</p>
+                    </div>
+                    <span class="text-xs bg-emerald-100 text-emerald-800 font-medium px-2.5 py-1 rounded-full">Interactive Demo</span>
+                </div>
+
+                <!-- Simulation Action 1: Submit Google Form -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">1. จำลองนักศึกษากรอก Google Form ส่งงาน</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">เลือกนักศึกษาที่ยังไม่ส่งงาน</label>
+                            <select id="sim-student-select" class="w-full text-sm border-slate-300 rounded-lg p-2 bg-white border focus:ring-2 focus:ring-emerald-500">
+                                <!-- Dynamic Options -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">หัวข้อการส่งงาน</label>
+                            <input type="text" id="sim-task-input" value="ใบงานที่ 2 การเขียนโปรแกรม" class="w-full text-sm border-slate-300 rounded-lg p-2 bg-white border focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    <button onclick="simulateFormSubmit()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> จำลองกดส่งแบบฟอร์ม (Submit Form)
+                    </button>
+                </div>
+
+                <!-- Simulation Action 2: Scheduled Alerts -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">2. จำลองระบบส่งข้อความแจ้งเตือนอัตโนมัติ (Scheduled Alerts)</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <button onclick="triggerScheduledAlert('3days')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium py-2.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-clock"></i> เตือน 3 วันก่อนส่ง
+                        </button>
+                        <button onclick="triggerScheduledAlert('1day')" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium py-2.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation"></i> เตือน 1 วันก่อนส่ง
+                        </button>
+                        <button onclick="triggerScheduledAlert('missed')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium py-2.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-bell-slash"></i> เตือนเลยกำหนดส่ง
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: LINE Group Mockup Feed -->
+            <div class="lg:col-span-5 bg-slate-800 rounded-2xl p-5 text-slate-100 flex flex-col h-[480px] shadow-lg border border-slate-700">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full line-green flex items-center justify-center text-white text-sm">
+                            <i class="fa-solid fa-comment"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">กลุ่ม LINE: DBI223-DBI224 SPU</h3>
+                            <p class="text-[10px] text-emerald-400">● LINE Notify Active</p>
+                        </div>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Live Mockup</span>
+                </div>
+
+                <!-- Chat Feed -->
+                <div id="line-chat-feed" class="flex-1 overflow-y-auto my-3 space-y-3 pr-1 custom-scrollbar text-xs">
+                    <!-- Default Bot Message -->
+                    <div class="bg-slate-700/80 p-3 rounded-xl border-l-4 border-emerald-500 space-y-1">
+                        <div class="flex justify-between items-center text-[10px] text-slate-400">
+                            <span class="font-bold text-emerald-400">LINE Notify</span>
+                            <span id="init-time">10:00 น.</span>
+                        </div>
+                        <p class="text-slate-200">🤖 ระบบติดตามการส่งงาน DBI223 และ DBI224 พร้อมใช้งานแล้วครับ</p>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-700 text-center">
+                    <p class="text-[11px] text-slate-400">ข้อความจะอัปเดตแบบ Real-time เมื่อเกิด Trigger ในระบบ</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Table & Analytics Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Table: Student List -->
+            <div class="lg:col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">รายชื่อนักศึกษาและสถานะการส่งงาน</h2>
+                        <p class="text-xs text-slate-500">สามารถค้นหา กรองข้อมูล หรือกดสะกิดเตือนรายบุคคลได้</p>
+                    </div>
+                    <button onclick="addNewStudentPrompt()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium py-2 px-3 rounded-lg transition self-start sm:self-auto">
+                        <i class="fa-solid fa-plus mr-1"></i> เพิ่มรายชื่อนักศึกษา
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="search-input" onkeyup="filterStudents()" placeholder="ค้นหาชื่อ หรือ รหัสนักศึกษา..." class="flex-1 text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <select id="filter-subject" onchange="filterStudents()" class="text-xs border border-slate-300 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-emerald-500">
+                        <option value="ALL">ทุกวิชา (DBI223 & DBI224)</option>
+                        <option value="DBI223">DBI223</option>
+                        <option value="DBI224">DBI224</option>
+                    </select>
+                    <select id="filter-status" onchange="filterStudents()" class="text-xs border border-slate-300 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-emerald-500">
+                        <option value="ALL">ทุกสถานะ</option>
+                        <option value="SUBMITTED">ส่งแล้ว</option>
+                        <option value="PENDING">ยังไม่ส่ง</option>
+                    </select>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-3">รหัสนักศึกษา</th>
+                                <th class="py-3 px-3">ชื่อ-นามสกุล</th>
+                                <th class="py-3 px-3">รายวิชา</th>
+                                <th class="py-3 px-3">สถานะ</th>
+                                <th class="py-3 px-3 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-table-body" class="divide-y divide-slate-100">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <h3 class="text-sm font-bold text-slate-800">สัดส่วนภาพรวมการส่งงาน</h3>
+                    <div class="relative h-48 flex items-center justify-center">
+                        <canvas id="statusPieChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <h3 class="text-sm font-bold text-slate-800">เปรียบเทียบการส่งงานแยกรายวิชา</h3>
+                    <div class="relative h-48 flex items-center justify-center">
+                        <canvas id="subjectBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Custom JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
